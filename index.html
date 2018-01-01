@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Knockout JS</title>
+        <style>
+            table,thead,tbody,tr,th,td{
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            td, th{
+                padding: 5px 5px 5px 5px;
+            }
+        </style>
+</head>
+<body>
+    
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Address</th><th>Age</th></tr>
+        </thead>
+        <tbody data-bind="foreach: persons">
+            <tr>
+                <td>
+                    <span data-bind="text: name, click: $parent.editing.bind($parent, $index(), 'name'), visible: !$parent.isEditing($index(), 'name')"></span>
+                    <input type="text" data-bind="value: name, visible: $parent.isEditing($index(), 'name')"/>
+                </td>
+                <td>
+                    <span data-bind="text: address, click: $parent.editing.bind($parent, $index(), 'address'), visible: !$parent.isEditing($index(), 'address')"></span>
+                    <input type="text" data-bind="value: address, visible: $parent.isEditing($index(), 'address')"/>
+                </td>
+                <td>
+                    <span data-bind="text: age, click: $parent.editing.bind($parent, $index(), 'age'), visible: !$parent.isEditing($index(), 'age')"></span>
+                    <input type="text" data-bind="value: age, visible: $parent.isEditing($index(), 'age')"/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="knockout-3.4.2.js"></script>
+    <script>
+        
+        var TableViewModel = function(){
+            var self = this;
+            self.persons = ko.observableArray([
+                { name: "Limpat Prananda", address: "Surabaya", age: 27 },
+                { name: "Wicaksono Adi Putro", address: "Mojokerto", age: 24 },
+                { name: "Wimpi Agung Nugraha", address: "Mojokerto", age: 15 },
+            ]);
+            self.indexEditing = ko.observable(-1);
+            self.propertyEditing = ko.observable(-1);
+            self._isEditing = ko.observable(false);
+            
+            self.editing = function(index, property){
+                self._isEditing(true);
+                self.indexEditing(index);
+                self.propertyEditing(property);
+                
+                console.log("editing : " + self._isEditing());
+            };
+            self.isEditing = function(index, property){
+                console.log("isEditing : " + self._isEditing());
+                if(self.indexEditing() == index && self.propertyEditing() == property && self._isEditing())
+                    return true;
+                else return false;
+            };
+        };
+        ko.applyBindings(new TableViewModel());
+        
+       
+
+    </script>
+</body>
+</html>
