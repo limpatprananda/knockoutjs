@@ -7,19 +7,22 @@
                 border: 1px solid black;
                 border-collapse: collapse;
             }
-            td, th{
+            td, th, input{
                 padding: 5px 5px 5px 5px;
             }
         </style>
 </head>
 <body>
-    
+    <button data-bind="click: add">add</button>
     <table data-bind="clickOutside: clickOutside">
         <thead>
-            <tr><th>Name</th><th>Address</th><th>Age</th></tr>
+            <tr><th>No</th><th>Name</th><th>Address</th><th>Age</th><th>Action</th></tr>
         </thead>
-        <tbody data-bind="foreach: persons">
+        <tbody data-bind="foreach: {data: persons}">
             <tr>
+                <td>
+                    <span data-bind="text: ( $index() + 1 )"></span>
+                </td>
                 <td data-bind="click: $parent.editing.bind($parent, $index(), 'name')">
                     <span data-bind="text: name, visible: !$parent.isEditing($index(), 'name')"></span>
                     <input type="text" data-bind="value: name, visible: $parent.isEditing($index(), 'name')"/>
@@ -32,10 +35,13 @@
                     <span data-bind="text: age, visible: !$parent.isEditing($index(), 'age')"></span>
                     <input type="text" data-bind="value: age, visible: $parent.isEditing($index(), 'age')"/>
                 </td>
+                <td>
+                    <button data-bind="click: $parent.delete">del</button>
+                </td>
             </tr>
         </tbody>
     </table>
-    
+    <button data-bind="click: save">save</button>
     <script src="jquery-3.2.1.min.js"></script>
     <script src="knockout-3.4.2.js"></script>
     <script>
@@ -50,10 +56,12 @@
             },
         };
         
-        var Person = function(data){
+        var Person = function(data, isAdd = false){
             this.name = ko.observable(data.name);
             this.address = ko.observable(data.address);
-            this.age = ko.observable(data.age);            
+            this.age = ko.observable(data.age);  
+            if(isAdd)
+                this._adding = true;
         };
         
         var TableViewModel = function(){
@@ -82,8 +90,25 @@
                 else return false;
             };
             self.clickOutside = function(){
+                var temp = self.persons()[self.indexEditing()];
+                temp._change = true;
+                                
                 self.indexEditing(-1);
                 self.propertyEditing(-1);                   
+            };
+            self.delete = function(person){
+                var conf = confirm("Are you sure want to delete?");
+                if(conf)
+                    self.persons.destroy(person);
+            };
+            self.save = function(){
+                var result = ko.toJS(self.persons());
+                console.log(result);
+            };
+            self.add = function(){
+                self.persons.unshift(new Person({
+                    name: '-', address: '-', age: 0
+                }, true));
             };
         };
         ko.applyBindings(new TableViewModel());               
